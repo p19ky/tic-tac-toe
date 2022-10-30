@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, Children, MouseEvent } from 'react';
 
-import Square from "./Square";
+import Square from './Square';
 
 type Scores = {
   [key: string]: number;
 };
 
-const INITIAL_GAME_STATE = ["", "", "", "", "", "", "", "", ""];
+const INITIAL_GAME_STATE = ['', '', '', '', '', '', '', '', ''];
 const INITIAL_SCORES: Scores = { X: 0, O: 0 };
 const WINNING_COMBOS = [
   [0, 1, 2],
@@ -19,13 +19,13 @@ const WINNING_COMBOS = [
   [2, 4, 6],
 ];
 
-const Game = (): JSX.Element => {
+function Game() {
   const [gameState, setGameState] = useState(INITIAL_GAME_STATE);
-  const [currentPlayer, setCurrentPlayer] = useState("X");
+  const [currentPlayer, setCurrentPlayer] = useState('X');
   const [scores, setScores] = useState(INITIAL_SCORES);
 
   useEffect(() => {
-    const storedScores = localStorage.getItem("scores");
+    const storedScores = localStorage.getItem('scores');
     if (storedScores) {
       setScores(JSON.parse(storedScores));
     }
@@ -48,13 +48,13 @@ const Game = (): JSX.Element => {
     const newScores = { ...scores };
     newScores[currentPlayer] = newPlayerScore;
     setScores(newScores);
-    localStorage.setItem("scores", JSON.stringify(newScores));
+    localStorage.setItem('scores', JSON.stringify(newScores));
 
     resetBoard();
   };
 
   const handleDraw = () => {
-    window.alert("The game ended in a draw");
+    window.alert('The game ended in a draw');
 
     resetBoard();
   };
@@ -69,7 +69,7 @@ const Game = (): JSX.Element => {
       const b = gameState[winCombo[1]];
       const c = gameState[winCombo[2]];
 
-      if ([a, b, c].includes("")) {
+      if ([a, b, c].includes('')) {
         continue;
       }
 
@@ -84,7 +84,7 @@ const Game = (): JSX.Element => {
       return;
     }
 
-    if (!gameState.includes("")) {
+    if (!gameState.includes('')) {
       setTimeout(() => handleDraw(), 500);
       return;
     }
@@ -93,26 +93,23 @@ const Game = (): JSX.Element => {
   };
 
   const changePlayer = () => {
-    setCurrentPlayer((crtPlayer) => (crtPlayer === "X" ? "O" : "X"));
+    setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
   };
 
-  const handleCellClick = React.useCallback(
-    (event: React.MouseEvent) => {
-      const cellIndex = Number(
-        event.currentTarget.getAttribute("data-cell-index")
-      );
+  const handleCellClick = (event: MouseEvent) => {
+    const cellIndex = Number(
+      event.currentTarget.getAttribute('data-cell-index')
+    );
 
-      const currentValue = gameState[cellIndex];
+    const currentValue = gameState[cellIndex];
+    if (currentValue) {
+      return;
+    }
 
-      if (currentValue) return;
-
-      const newValues = [...gameState];
-      newValues[cellIndex] = currentPlayer;
-
-      setGameState(newValues);
-    },
-    [gameState]
-  );
+    const newValues = [...gameState];
+    newValues[cellIndex] = currentPlayer;
+    setGameState(newValues);
+  };
 
   return (
     <div className="h-full p-8 text-slate-800 bg-gradient-to-r from-cyan-500 to-blue-500">
@@ -121,13 +118,11 @@ const Game = (): JSX.Element => {
       </h1>
       <div>
         <div className="grid grid-cols-3 gap-3 mx-auto w-96">
-          {gameState.map((player, index) => (
-            <Square
-              key={index}
-              onClick={handleCellClick}
-              {...{ index, player }}
-            />
-          ))}
+          {Children.toArray(
+            gameState.map((player, index) => (
+              <Square onClick={handleCellClick} {...{ index, player }} />
+            ))
+          )}
         </div>
 
         <div className="mx-auto w-96 text-2xl text-serif">
@@ -135,15 +130,15 @@ const Game = (): JSX.Element => {
             Next Player: <span>{currentPlayer}</span>
           </p>
           <p className="text-white mt-5">
-            Player X wins: <span>{scores["X"]}</span>
+            Player X wins: <span>{scores.X}</span>
           </p>
           <p className="text-white mt-5">
-            Player O wins: <span>{scores["O"]}</span>
+            Player O wins: <span>{scores.O}</span>
           </p>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Game;
